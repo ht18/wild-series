@@ -1,11 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}All programs
+{% block title %}Séries
 {% endblock %}
 
 {% block body %}
-	<h1>Toutes les séries de la table program :
-	</h1>
+
 	{% for program in programs %}
 		<div>
 			<h2>{{ loop.index }}
@@ -19,8 +18,4 @@
 	{% else %}
 		Aucune série trouvée.
 	{% endfor %}
-
-	<a href="{{ path('app_home') }}">
-		Retour à l'accueil
-	</a>
 {% endblock %}
