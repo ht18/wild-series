@@ -11,6 +11,15 @@
 			<p>{{ program.synopsis }}</p>
 			<p>Catégorie :
 				{{ program.category.name }}</p>
+			<p>Season :
+				{% for season in program.seasons %}
+
+					<a href="{{ path('program_show_season', { id: program.id, seasonId: season.id } )}}">
+						<p>{{ season.description }}</p>
+					</a>
+				</p>
+			{% endfor %}
+
 		</div>
 	</div>
 

@@ -22,15 +22,17 @@ class CategoryController extends AbstractController
     #[Route('/category/{categoryName}', methods: ['GET'], name: 'category_show')]
     public function show(string $categoryName, CategoryRepository $categoryRepository, ProgramRepository $programRepository): Response
     {
-        $categoryId = $categoryRepository->findOneBy(['name' => $categoryName])->getId();
+        $category = $categoryRepository->findOneBy(['name' => $categoryName]);
+        $categoryId = $category->getId();
         $programs = $programRepository->findBy(['category' => $categoryId]);
-        if (!$programs) {
+        if (!$category) {
             throw $this->createNotFoundException(
                 'No program with this category Name : ' . $categoryName . ' found in program\'s table.'
             );
+        } else {
+            return $this->render('category/show.html.twig', [
+                'programs' => $programs,
+            ]);
         }
-        return $this->render('category/show.html.twig', [
-            'programs' => $programs,
-        ]);
     }
 }
