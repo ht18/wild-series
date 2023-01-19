@@ -2,6 +2,10 @@
 // src/Controller/ProgramController.php
 namespace App\Controller;
 
+use App\Entity\Program;
+use App\Entity\Season;
+use App\Entity\Episode;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -24,38 +28,37 @@ class ProgramController extends AbstractController
         );
     }
 
-    #[Route('/show/{id<^[0-9]+$>}', name: 'program_show')]
-    public function show(int $id, ProgramRepository $programRepository): Response
+    #[Route('/show/{program}', name: 'program_show')]
+    public function show(Program $program): Response
     {
-        $program = $programRepository->findOneBy(['id' => $id]);
-        // same as $program = $programRepository->find($id);
-
-        if (!$program) {
-            throw $this->createNotFoundException(
-                'No program with id : ' . $id . ' found in program\'s table.'
-            );
-        }
         return $this->render('program/show.html.twig', [
             'program' => $program,
         ]);
     }
 
-    #[Route('/show/{id<^[0-9]+$>}/seasons/{seasonId<^[0-9]+$>}', name: 'program_show_season')]
-    public function showSeason(int $id, int $seasonId, EpisodeRepository $episodeRepository, ProgramRepository $programRepository, SeasonRepository $seasonRepository): Response
+    #[Route('/show/{program}/seasons/{season}', name: 'program_show_season')]
+    public function showSeason(Program $program, Season $season, EpisodeRepository $episodeRepository): Response
     {
-        $season = $seasonRepository->findOneBy(['id' => $seasonId, 'programm_id' => $id]);
-        $program = $programRepository->findOneBy(['id' => $id]);
-        $episodes = $episodeRepository->findBy(['season_id' => $seasonId]);
+        $episodes = $episodeRepository->findBy(['season_id' => $season->getId()]);
 
-        if (!$season) {
-            throw $this->createNotFoundException(
-                'No program with id : ' . $seasonId . ' found in program\'s table.'
-            );
-        }
         return $this->render('season/show.html.twig', [
             'season' => $season,
             'program' => $program,
             'episodes' => $episodes,
+        ]);
+    }
+
+    #[Route('/show/{program_id}/seasons/{season_id}/episode/{episode_id}', name: 'program_episode_show')]
+    #[Entity('program', options: ['mapping' => ['program_id' => 'id']])]
+    #[Entity('season', options: ['mapping' => ['season_id' => 'id']])]
+    #[Entity('episode', options: ['mapping' => ['episode_id' => 'id']])]
+    public function showEpisode(Program $program, Season $season, Episode $episode): Response
+    {
+
+        return $this->render('episode/show.html.twig', [
+            'season' => $season,
+            'program' => $program,
+            'episode' => $episode,
         ]);
     }
 }

@@ -12,6 +12,9 @@
 			<h1 class="mt-0">{{ season.year }}</h1>
 			{% for episode in episodes %}
 				<p>{{ episode.title }}</p>
+				<a href="{{ path('program_episode_show', { "program_id": program.id, "season_id": season.id, "episode_id": episode.id }) }}">
+					Regarder Episode
+				</a>
 			{% endfor %}
 		</div>
 	</div>
