@@ -60,7 +60,7 @@ class ProgramController extends AbstractController
     {
         $episodes = $episodeRepository->findBy(['season_id' => $season->getId()]);
 
-        return $this->render('season/show.html.twig', [
+        return $this->render('seasons/show.html.twig', [
             'season' => $season,
             'program' => $program,
             'episodes' => $episodes,
@@ -74,7 +74,7 @@ class ProgramController extends AbstractController
     public function showEpisode(Program $program, Season $season, Episode $episode): Response
     {
 
-        return $this->render('episode/show.html.twig', [
+        return $this->render('episodes/show.html.twig', [
             'season' => $season,
             'program' => $program,
             'episode' => $episode,

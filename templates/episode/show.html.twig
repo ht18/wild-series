@@ -1,24 +1,34 @@
 {% extends 'base.html.twig' %}
-{% block title %}Episode #{{ episode.id }}
-{% endblock %}
+
+{% block title %}Episode{% endblock %}
 
 {% block body %}
-	<div class="media">
-		<img class="align-self-start mr-3" src="{{program.poster}}" alt="{{ program.title }} poster">
-		<div class="media-body">
-			<h1 class="mt-0">{{ program.title }}</h1>
-			<p>{{ program.synopsis }}</p>
-			<p>Season
-				{{ season.number }}</p>
-			<p>Episode
-				{{ episode.number }}</p>
-			<p>Episode
-				{{ episode.synopsis }}</p>
+    <h1>Episode</h1>
 
-		</div>
-	</div>
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ episode.id }}</td>
+            </tr>
+            <tr>
+                <th>Title</th>
+                <td>{{ episode.title }}</td>
+            </tr>
+            <tr>
+                <th>Number</th>
+                <td>{{ episode.number }}</td>
+            </tr>
+            <tr>
+                <th>Synopsis</th>
+                <td>{{ episode.synopsis }}</td>
+            </tr>
+        </tbody>
+    </table>
 
-	<a href="{{ path('program_index') }}">
-		Retour à la liste des programmes
-	</a>
+    <a href="{{ path('app_episode_index') }}">back to list</a>
+
+    <a href="{{ path('app_episode_edit', {'id': episode.id}) }}">edit</a>
+
+    {{ include('episode/_delete_form.html.twig') }}
 {% endblock %}
