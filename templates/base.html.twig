@@ -21,5 +21,19 @@
 	{% endblock %}
 </html></head><body>
 {{ include('_navbar.html.twig') }}
+{% for category, messages in app.flashes %}
+	{% for message in messages %}
+		<div class="alert alert-{{ category }}">
+			{{ message }}
+		</div>
+	{% endfor %}
+{% endfor %}
+{% for category, messages in app.flashes %}
+	{% for danger in messages %}
+		<div class="alert alert-{{ category }}">
+			{{ danger }}
+		</div>
+	{% endfor %}
+{% endfor %}
 
-{% block body %}{% endblock %}</body></html>
+{% block body %}{% endblock %}</body></body></html>
