@@ -18,12 +18,14 @@ class ProgramFixtures extends Fixture implements DependentFixtureInterface
         $program->setTitle('Walking dead');
         $program->setSynopsis('Des zombies envahissent la terre');
         $program->setCategory($this->getReference('category_Action'));
+        $program->setSlug('walking-dead');
         $manager->persist($program);
 
         $program1 = new Program();
         $program1->setTitle('Walking dead 2');
         $program1->setSynopsis('Des zombies envahissent la terre');
         $program1->setCategory($this->getReference('category_Aventure'));
+        $program1->setSlug('walking-dead-2');
         $manager->persist($program1);
 
         $this->addReference('program_' . 1, $program);

@@ -6,6 +6,7 @@ use App\Entity\Program;
 use App\Entity\Season;
 use App\Entity\Episode;
 use App\Form\ProgramType;
+use App\Service\ProgramDuration;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,6 +15,7 @@ use App\Repository\ProgramRepository;
 use App\Repository\SeasonRepository;
 use App\Repository\EpisodeRepository;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 class ProgramController extends AbstractController
 {
@@ -29,7 +31,7 @@ class ProgramController extends AbstractController
     }
 
     #[Route('/program/new', name: 'program_new')]
-    public function new(Request $request, ProgramRepository $programRepository): Response
+    public function new(Request $request, ProgramRepository $programRepository, SluggerInterface $slugger): Response
     {
         $program = new Program();
 
@@ -37,6 +39,8 @@ class ProgramController extends AbstractController
         
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            $slug = $slugger->slug($program->getTitle());
+            $program->setSlug($slug);
             $programRepository->save($program, true);
 
             $this->addFlash('success', 'The new program has been created');
@@ -50,11 +54,13 @@ class ProgramController extends AbstractController
         ]);
     }
 
-    #[Route('/show/{program}', name: 'program_show')]
-    public function show(Program $program): Response
+    #[Route('/show/{slug}', name: 'program_show')]
+    public function show($slug, ProgramRepository $programRepository, SeasonRepository $seasonRepository, EpisodeRepository $episodeRepository, ProgramDuration $programDuration): Response
     {
+        $program = $programRepository->findOneBy(['slug' => $slug]);
         return $this->render('program/show.html.twig', [
             'program' => $program,
+            'programDuration' => $programDuration->calculate($program, $seasonRepository, $episodeRepository),
         ]);
     }
 
