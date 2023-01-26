@@ -74,6 +74,11 @@ class Actor
         return $this;
     }
 
+    public function getSelector(): string
+    {
+        return $this->getFirstname() . '  ' . $this->getLastname();
+    }
+
     /**
      * @return Collection<int, Program>
      */
