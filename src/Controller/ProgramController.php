@@ -16,6 +16,8 @@ use App\Repository\SeasonRepository;
 use App\Repository\EpisodeRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 
 class ProgramController extends AbstractController
 {
@@ -31,7 +33,7 @@ class ProgramController extends AbstractController
     }
 
     #[Route('/program/new', name: 'program_new')]
-    public function new(Request $request, ProgramRepository $programRepository, SluggerInterface $slugger): Response
+    public function new(Request $request, MailerInterface $mailer, ProgramRepository $programRepository, SluggerInterface $slugger): Response
     {
         $program = new Program();
 
@@ -42,7 +44,12 @@ class ProgramController extends AbstractController
             $slug = $slugger->slug($program->getTitle());
             $program->setSlug($slug);
             $programRepository->save($program, true);
-
+            $email = (new Email())
+                ->from($this->getParameter('mailer_from'))
+                ->to('your_email@example.com')
+                ->subject('Une nouvelle série vient d\'être publiée !')
+                ->html($this->renderView('Program/newProgramEmail.html.twig', ['program' => $program]));
+            $mailer->send($email);
             $this->addFlash('success', 'The new program has been created');
 
             return $this->redirectToRoute('program_index');
