@@ -18,6 +18,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use App\Entity\Comment;
+use App\Form\Comment1Type;
+use App\Repository\CommentRepository;
 
 class ProgramController extends AbstractController
 {
@@ -91,6 +94,35 @@ class ProgramController extends AbstractController
     {
 
         return $this->render('episodes/show.html.twig', [
+            'season' => $season,
+            'program' => $program,
+            'episode' => $episode,
+        ]);
+    }
+
+    #[Route('/show/{program_id}/seasons/{season_id}/episode/{episode_id}/comment/new', name: 'app_comment_new', methods: ['GET', 'POST'])]
+    #[Entity('program', options: ['mapping' => ['program_id' => 'id']])]
+    #[Entity('season', options: ['mapping' => ['season_id' => 'id']])]
+    #[Entity('episode', options: ['mapping' => ['episode_id' => 'id']])]
+    public function newComment(Program $program, Season $season, Episode $episode, Request $request, CommentRepository $commentRepository, EpisodeRepository $episodeRepository): Response
+    {
+        $comment = new Comment();
+        $form = $this->createForm(Comment1Type::class, $comment);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $user = $this->getUser();
+            $comment->setUserId($user);
+            $comment->setEpisodeId($episode);
+            $commentRepository->save($comment, true);
+
+            return $this->redirectToRoute('program_index', [
+            ], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->renderForm('comment/new.html.twig', [
+            'comment' => $comment,
+            'form' => $form,
             'season' => $season,
             'program' => $program,
             'episode' => $episode,

@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Comment
+{% endblock %}
+
+{% block body %}
+	<h1>Create new Comment</h1>
+
+	{{ include('comment/_form.html.twig') }}
+
+	<a href="{{ path('program_episode_show', { program_id: program.id, season_id:season.id, episode_id: season.id }) }}">back to list</a>
+{% endblock %}
