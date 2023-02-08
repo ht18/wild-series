@@ -22,8 +22,8 @@
 					<td>{{ comment.comment }}</td>
 					<td>{{ comment.rate }}</td>
 					<td>
-						<a href="{{ path('app_comment_show', {'id': comment.id}) }}">show</a>
-						<a href="{{ path('app_comment_edit', {'id': comment.id}) }}">edit</a>
+						<a href="{{ path('app_comment_show', { comment_id: comment.id, program_id: program.id, season_id: season.id, episode_id: episode.id }) }}">show</a>
+						<a href="{{ path('app_comment_edit', { comment_id: comment.id, program_id: program.id, season_id: season.id, episode_id: episode.id } ) }}">edit</a>
 					</td>
 				</tr>
 			{% else %}

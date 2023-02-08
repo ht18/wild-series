@@ -22,6 +22,6 @@
 		Retour à la liste des programmes
 	</a>
 	{% if app.user %}
-		<a href="{{ path('app_comment_new', { program_id: program.id, season_id: season.id, episode_id: episode.id } ) }}">Comment</a>
+		<a href="{{ path('app_comment_index', { program_id: program.id, season_id: season.id, episode_id: episode.id } ) }}">Comment</a>
 	{% endif %}
 {% endblock %}

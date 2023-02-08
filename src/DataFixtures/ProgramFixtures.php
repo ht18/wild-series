@@ -19,6 +19,8 @@ class ProgramFixtures extends Fixture implements DependentFixtureInterface
         $program->setSynopsis('Des zombies envahissent la terre');
         $program->setCategory($this->getReference('category_Action'));
         $program->setSlug('walking-dead');
+        $program->setOwner($this->getReference('admin_1'));
+        $program->setUpdatedAt(date_create_immutable("now"));
         $manager->persist($program);
 
         $program1 = new Program();
@@ -26,6 +28,8 @@ class ProgramFixtures extends Fixture implements DependentFixtureInterface
         $program1->setSynopsis('Des zombies envahissent la terre');
         $program1->setCategory($this->getReference('category_Aventure'));
         $program1->setSlug('walking-dead-2');
+        $program1->setOwner($this->getReference('admin_1'));
+        $program1->setUpdatedAt(date_create_immutable("now"));
         $manager->persist($program1);
 
         $this->addReference('program_' . 1, $program);
@@ -39,6 +43,7 @@ class ProgramFixtures extends Fixture implements DependentFixtureInterface
         // Tu retournes ici toutes les classes de fixtures dont ProgramFixtures dépend
         return [
             CategoryFixtures::class,
+            UserFixtures::class,
         ];
     }
 }

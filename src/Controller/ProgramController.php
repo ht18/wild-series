@@ -46,7 +46,9 @@ class ProgramController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $slug = $slugger->slug($program->getTitle());
             $program->setSlug($slug);
+            $program->setUpdatedAt(date_create_immutable("now"));
             $programRepository->save($program, true);
+            $program->setOwner($this->getUser());
             $email = (new Email())
                 ->from($this->getParameter('mailer_from'))
                 ->to('your_email@example.com')
@@ -62,6 +64,15 @@ class ProgramController extends AbstractController
         return $this->renderForm('program/new.html.twig', [
             'form' => $form,
         ]);
+    }
+
+    #[Route('/program/{slug}/edit', name: 'program_edit')]
+    public function editProgram($slug, ProgramRepository $programRepository): Response
+    {
+        if ($this->getUser() !== $program->getOwner()) {
+            // If not the owner, throws a 403 Access Denied exception
+            throw $this->createAccessDeniedException('Only the owner can edit the program!');
+        }
     }
 
     #[Route('/show/{slug}', name: 'program_show')]
@@ -94,6 +105,68 @@ class ProgramController extends AbstractController
     {
 
         return $this->render('episodes/show.html.twig', [
+            'season' => $season,
+            'program' => $program,
+            'episode' => $episode,
+        ]);
+    }
+
+    #[Route('/show/{program_id}/seasons/{season_id}/episode/{episode_id}/comment', name: 'app_comment_index', methods: ['GET'])]
+    #[Entity('program', options: ['mapping' => ['program_id' => 'id']])]
+    #[Entity('season', options: ['mapping' => ['season_id' => 'id']])]
+    #[Entity('episode', options: ['mapping' => ['episode_id' => 'id']])]
+    public function indexComment(Program $program, Season $season, Episode $episode, Request $request, CommentRepository $commentRepository): Response
+    {
+        $comments = $commentRepository->findBy(['episode_id' => $episode->getId()]);
+
+        return $this->render(
+            'comment/index.html.twig',[
+                'comments' => $comments,
+                'season' => $season,
+                'program' => $program,
+                'episode' => $episode,
+            ]
+            
+        );
+    }
+
+    #[Route('/show/{program_id}/seasons/{season_id}/episode/{episode_id}/comment/{comment_id}', name: 'app_comment_show', methods: ['GET'])]
+    #[Entity('program', options: ['mapping' => ['program_id' => 'id']])]
+    #[Entity('season', options: ['mapping' => ['season_id' => 'id']])]
+    #[Entity('episode', options: ['mapping' => ['episode_id' => 'id']])]
+    public function showComment(Program $program, Season $season, Comment $comment, Episode $episode, Request $request, CommentRepository $commentRepository, EpisodeRepository $episodeRepository): Response
+    {
+        return $this->render('comment/show.html.twig', [
+            'comment' => $comment,
+            'season' => $season,
+            'program' => $program,
+            'episode' => $episode,
+        ]);
+    }
+
+    #[Route('/show/{program_id}/seasons/{season_id}/episode/{episode_id}/comment/{comment_id}/edit', name: 'app_comment_edit', methods: ['GET', 'POST'])]
+    #[Entity('program', options: ['mapping' => ['program_id' => 'id']])]
+    #[Entity('season', options: ['mapping' => ['season_id' => 'id']])]
+    #[Entity('episode', options: ['mapping' => ['episode_id' => 'id']])]
+    public function editComment (Program $program, Season $season, Comment $comment, Episode $episode, Request $request, CommentRepository $commentRepository, EpisodeRepository $episodeRepository): Response
+    {
+        $form = $this->createForm(Comment1Type::class, $comment);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $user = $this->getUser();
+            $comment->setUserId($user);
+            $comment->setEpisodeId($episode);
+            $commentRepository->save($comment, true);
+
+            return $this->redirectToRoute('app_comment_index', ['season_id' => $season->getId(),
+            'program_id' => $program->getId(),
+            'episode_id' => $episode->getId(),], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->renderForm('comment/edit.html.twig', [
+            'comment' => $comment,
+            'form' => $form,
             'season' => $season,
             'program' => $program,
             'episode' => $episode,
