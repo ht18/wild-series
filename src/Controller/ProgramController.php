@@ -20,20 +20,29 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use App\Entity\Comment;
 use App\Form\Comment1Type;
+use App\Form\SearchProgramType;
 use App\Repository\CommentRepository;
 
 class ProgramController extends AbstractController
 {
     #[Route('/', name: 'program_index')]
-    public function index(ProgramRepository $programRepository): Response
-    {
-        $programs = $programRepository->findAll();
+    public function index(Request $request, ProgramRepository $programRepository): Response
+{
+    $form = $this->createForm(SearchProgramType::class);
+    $form->handleRequest($request);
 
-        return $this->render(
-            'program/index.html.twig',
-            ['programs' => $programs]
-        );
+    if ($form->isSubmitted() && $form->isValid()) {
+        $search = $form->getData()['search'];
+        $programs = $programRepository->findLikeName($search);
+    } else {
+        $programs = $programRepository->findAll();
     }
+
+    return $this->renderForm('program/index.html.twig', [
+        'programs' => $programs,
+        'form' => $form,
+    ]);
+}
 
     #[Route('/program/new', name: 'program_new')]
     public function new(Request $request, MailerInterface $mailer, ProgramRepository $programRepository, SluggerInterface $slugger): Response
